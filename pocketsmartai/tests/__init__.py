@@ -1,3 +1,0 @@
-"""
-PocketSmart AI Test Suite
-"""
