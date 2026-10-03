@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}PocketSmart AI - Your Smart Budget & Recommendation Assistant{% endblock %}</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Bootstrap 5.3 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- FontAwesome 6 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/static/css/styles.css">
+    
+    <!-- Chart.js 4 -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    
+    {% block extra_head %}{% endblock %}
+</head>
+<body>
+
+    <!-- Navigation Bar -->
+    <nav class="navbar navbar-expand-lg navbar-custom sticky-top">
+        <div class="container">
+            <a class="navbar-brand d-flex align-items-center" href="/">
+                <i class="fa-solid fa-wallet text-primary me-2 fs-4"></i>
+                <span>PocketSmart <span class="badge bg-primary text-white fs-6 py-1 px-2 rounded-pill ms-1">AI</span></span>
+            </a>
+            
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            
+            <div class="collapse navbar-collapse" id="navbarMain">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0 ms-lg-4">
+                    <li class="nav-item">
+                        <a class="nav-link fw-medium" href="/"><i class="fa-solid fa-house me-1 text-muted"></i> Home</a>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle fw-medium" href="#" role="button" data-bs-toggle="dropdown">
+                            <i class="fa-solid fa-wand-magic-sparkles me-1 text-primary"></i> AI Planners
+                        </a>
+                        <ul class="dropdown-menu border-0 shadow-lg rounded-3">
+                            <li>
+                                <a class="dropdown-item py-2" href="/home-planner">
+                                    <i class="fa-solid fa-couch text-indigo me-2"></i> Home Interior Planner
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item py-2" href="/party-planner">
+                                    <i class="fa-solid fa-champagne-glasses text-warning me-2"></i> Party & Event Planner
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item py-2" href="/jewelry-planner">
+                                    <i class="fa-solid fa-gem text-danger me-2"></i> Jewelry Vision Planner
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link fw-medium" href="/testimonials"><i class="fa-solid fa-comments me-1 text-muted"></i> Testimonials</a>
+                    </li>
+                    {% if current_user %}
+                    <li class="nav-item">
+                        <a class="nav-link fw-medium" href="/dashboard"><i class="fa-solid fa-chart-pie me-1 text-muted"></i> Dashboard</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link fw-medium" href="/history"><i class="fa-solid fa-clock-rotate-left me-1 text-muted"></i> Saved Plans</a>
+                    </li>
+                    {% endif %}
+                </ul>
+                
+                <div class="d-flex align-items-center gap-2">
+                    {% if current_user %}
+                        <div class="dropdown">
+                            <button class="btn btn-outline-secondary dropdown-toggle rounded-pill px-3" type="button" data-bs-toggle="dropdown">
+                                <i class="fa-solid fa-circle-user text-primary me-1"></i> {{ current_user.username }}
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end shadow-sm">
+                                <li><a class="dropdown-item" href="/dashboard"><i class="fa-solid fa-gauge me-2"></i> Dashboard</a></li>
+                                <li><a class="dropdown-item" href="/history"><i class="fa-solid fa-list me-2"></i> History</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item text-danger" href="/logout"><i class="fa-solid fa-arrow-right-from-bracket me-2"></i> Logout</a></li>
+                            </ul>
+                        </div>
+                    {% else %}
+                        <a href="/login" class="btn btn-outline-primary rounded-pill px-3">Login</a>
+                        <a href="/register" class="btn btn-primary rounded-pill px-3 shadow-sm">Get Started</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content Area -->
+    <main class="py-4">
+        <div class="container">
+            {% if error %}
+            <div class="alert alert-danger alert-dismissible fade show rounded-3 shadow-sm mb-4" role="alert">
+                <i class="fa-solid fa-triangle-exclamation me-2"></i> {{ error }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+            {% endif %}
+
+            {% block content %}{% endblock %}
+        </div>
+    </main>
+
+    <!-- Global Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-spinner mb-3"></div>
+        <h4 class="fw-bold mb-1">Generating Smart Recommendations</h4>
+        <p class="text-light opacity-75" id="loadingMessage">Connecting to Google Gemini foundation model...</p>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="row g-4 mb-4">
+                <div class="col-lg-4 col-md-6">
+                    <h5 class="text-white fw-bold d-flex align-items-center mb-3">
+                        <i class="fa-solid fa-wallet text-primary me-2"></i> PocketSmart AI
+                    </h5>
+                    <p class="small text-muted mb-3">
+                        An intelligent GenAI recommendation engine powered by Google Gemini 1.5 Flash. Delivers personalized budget allocations and curated suggestions across home decor, celebrations, and jewelry styling.
+                    </p>
+                    <div class="d-flex gap-2">
+                        <span class="badge bg-dark border border-secondary text-secondary">Gemini 1.5 Flash</span>
+                        <span class="badge bg-dark border border-secondary text-secondary">Multimodal Vision</span>
+                        <span class="badge bg-dark border border-secondary text-secondary">FastAPI</span>
+                    </div>
+                </div>
+                
+                <div class="col-lg-2 col-md-6 col-6">
+                    <h6 class="text-white fw-semibold mb-3">AI Planners</h6>
+                    <ul class="list-unstyled small">
+                        <li class="mb-2"><a href="/home-planner">Home Interiors</a></li>
+                        <li class="mb-2"><a href="/party-planner">Party & Events</a></li>
+                        <li class="mb-2"><a href="/jewelry-planner">Jewelry & Outfits</a></li>
+                    </ul>
+                </div>
+                
+                <div class="col-lg-2 col-md-6 col-6">
+                    <h6 class="text-white fw-semibold mb-3">Account</h6>
+                    <ul class="list-unstyled small">
+                        <li class="mb-2"><a href="/dashboard">User Dashboard</a></li>
+                        <li class="mb-2"><a href="/history">Saved History</a></li>
+                        <li class="mb-2"><a href="/testimonials">Reviews</a></li>
+                    </ul>
+                </div>
+
+                <div class="col-lg-4 col-md-6">
+                    <h6 class="text-white fw-semibold mb-3">Integrated Platforms</h6>
+                    <p class="small text-muted mb-2">Connecting you with live selections from trusted ecosystems:</p>
+                    <div class="d-flex flex-wrap gap-1">
+                        <span class="badge badge-amazon">Amazon</span>
+                        <span class="badge badge-flipkart">Flipkart</span>
+                        <span class="badge badge-ikea">IKEA</span>
+                        <span class="badge badge-swiggy">Swiggy</span>
+                        <span class="badge badge-zomato">Zomato</span>
+                        <span class="badge badge-oyo">OYO</span>
+                        <span class="badge badge-caratlane">CaratLane</span>
+                        <span class="badge badge-tanishq">Tanishq</span>
+                    </div>
+                </div>
+            </div>
+
+            <hr class="border-secondary my-4">
+
+            <div class="d-flex flex-column flex-md-row justify-content-between align-items-center small text-muted">
+                <div>&copy; 2026 PocketSmart AI. Built with Google Gemini & FastAPI. All rights reserved.</div>
+                <div class="mt-2 mt-md-0">
+                    <a href="/startup" class="me-3 text-muted">System Health</a>
+                    <a href="/testimonials" class="text-muted">Community</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Bootstrap 5.3 Bundle JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Custom Scripts -->
+    <script src="/static/js/main.js"></script>
+    <script src="/static/js/charts.js"></script>
+    {% block extra_scripts %}{% endblock %}
+</body>
+</html>
